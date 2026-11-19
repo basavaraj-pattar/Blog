@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}{{ post.title }} — InkWell{% endblock %}{% block content %}
+<div class="row justify-content-center"><article class="col-lg-9">
+<a class="back-link" href="{% url 'home' %}">← Back to stories</a>
+{% if post.category %}<p class="category-label mt-4">{{ post.category.name }}</p>{% endif %}
+<h1 class="article-title mt-2">{{ post.title }}</h1><p class="lead text-secondary">{{ post.excerpt }}</p>
+<div class="meta mb-4">By {{ post.author.username }} · {{ post.published_at|date:"F j, Y" }}</div>
+<div class="article-content">{{ post.content|linebreaks }}</div>
+<div class="d-flex align-items-center gap-3 border-top border-bottom py-3 my-4">
+<form method="post" action="{% url 'toggle_like' post.slug %}">{% csrf_token %}<button class="btn {% if liked %}btn-danger{% else %}btn-outline-danger{% endif %}">{% if liked %}♥ Liked{% else %}♡ Like{% endif %} · {{ post.like_count }}</button></form>
+<span class="text-secondary">{{ post.comments.count }} comments</span>
+{% if user == post.author or user.is_staff %}<a class="btn btn-outline-secondary btn-sm ms-auto" href="{% url 'post_edit' post.slug %}">Edit post</a>{% endif %}
+</div>
+<section id="comments"><h3 class="section-title mb-3">Conversation</h3>
+{% if user.is_authenticated %}<form method="post" action="{% url 'add_comment' post.slug %}" class="mb-4">{% csrf_token %}{{ comment_form.body }}<button class="btn btn-dark mt-2">Post comment</button></form>{% else %}<p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>{% endif %}
+{% for comment in post.comments.all %}<div class="comment"><div class="d-flex justify-content-between"><strong>{{ comment.author.username }}</strong><span class="meta">{{ comment.created_at|date:"M j, Y · H:i" }}</span></div><p class="mb-1">{{ comment.body|linebreaksbr }}</p>
+{% if user == comment.author or user == post.author or user.is_staff %}<form method="post" action="{% url 'delete_comment' comment.pk %}">{% csrf_token %}<button class="btn btn-link btn-sm text-danger p-0">Delete</button></form>{% endif %}</div>{% empty %}<p class="text-secondary">No comments yet. Start the conversation.</p>{% endfor %}
+</section></article></div>{% endblock %}

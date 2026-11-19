@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero p-4 p-md-5 mb-4">
+  <div class="row align-items-center"><div class="col-lg-8"><p class="eyebrow">A PLACE FOR IDEAS</p><h1>Stories that make<br><em>you think.</em></h1><p class="lead text-secondary">Discover fresh perspectives, share what you know, and join the conversation.</p></div>
+  <div class="col-lg-4 text-lg-end"><a class="btn btn-dark btn-lg" href="{% if user.is_authenticated %}{% url 'post_create' %}{% else %}{% url 'signup' %}{% endif %}">Start writing ↗</a></div></div>
+</section>
+<div class="row g-4">
+<div class="col-lg-8">
+  <form class="searchbar mb-4" method="get"><input class="form-control" name="q" value="{{ query }}" placeholder="Search stories..."><button class="btn btn-dark">Search</button></form>
+  <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="section-title">{% if query %}Search results{% else %}Latest stories{% endif %}</h2><span class="text-secondary small">{{ posts|length }} posts</span></div>
+  {% for post in posts %}
+  <article class="post-card mb-3">
+    <div class="d-flex justify-content-between gap-3"><div class="flex-grow-1">
+      {% if post.category %}<a class="category-label" href="{% url 'category_posts' post.category.slug %}">{{ post.category.name }}</a>{% endif %}
+      <h3 class="mt-2"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+      <p class="text-secondary">{{ post.excerpt|default:post.content|truncatewords:28 }}</p>
+      <div class="meta">By {{ post.author.username }} · {{ post.published_at|date:"M j, Y" }} · ♥ {{ post.like_count }}</div>
+      {% for tag in post.tags.all %}<a class="tag" href="{% url 'tag_posts' tag.slug %}">#{{ tag.name }}</a>{% endfor %}
+    </div><a class="read-link" href="{{ post.get_absolute_url }}">Read →</a></div>
+  </article>
+  {% empty %}<div class="empty-state">No stories found. Try another search or be the first to publish.</div>{% endfor %}
+</div>
+<aside class="col-lg-4"><div class="side-panel mb-3"><h5>Browse categories</h5>{% for category in categories %}<a class="side-link" href="{% url 'category_posts' category.slug %}">{{ category.name }} <span>→</span></a>{% empty %}<p class="text-secondary small">Categories will appear here.</p>{% endfor %}</div>
+<div class="side-panel"><h5>Explore topics</h5>{% for tag in popular_tags %}<a class="tag" href="{% url 'tag_posts' tag.slug %}">#{{ tag.name }}</a>{% empty %}<p class="text-secondary small">Tags will appear here.</p>{% endfor %}</div></aside>
+</div>{% endblock %}

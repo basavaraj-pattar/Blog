@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block content %}<h1 class="section-title mb-4">{{ heading }}</h1>
+{% for post in posts %}<article class="post-card mb-3"><h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3><p class="text-secondary">{{ post.excerpt|default:post.content|truncatewords:30 }}</p><div class="meta">By {{ post.author.username }} · {{ post.published_at|date:"M j, Y" }}</div></article>{% empty %}<div class="empty-state">No published posts here yet.</div>{% endfor %}{% endblock %}
